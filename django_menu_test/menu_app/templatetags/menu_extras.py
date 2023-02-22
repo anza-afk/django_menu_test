@@ -19,8 +19,11 @@ def draw_menu(context, name):
     current_item = menu_query.filter(url=current_url).first()
 
     active = [current_item.id]
-
-    children = [item for item in menu_query if item.parent == current_item]
+    children=[]
+    for menu_item in menu_items:
+        for item in menu_query:
+            if item.parent == menu_item:
+                children.append(item)
     return {
         'menu': menu_query,
         'menu_items': menu_items,
@@ -65,9 +68,9 @@ def draw_menu_item(context, name):
 
     print('children///////')
     print(children)
-
+    current_item = [current_item]
     return {
-        'menu_item': current_item,
+        'menu_items': current_item,
         'children': children,
         'active': active,
         'menu_query': menu_query

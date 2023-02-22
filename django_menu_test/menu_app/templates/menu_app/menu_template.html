@@ -9,10 +9,14 @@
             </summary>
                 {% for child in children %}
                 <div class="menu_item">
+                    {% if child.parent.id == menu_item.id %}
                     {% draw_menu_item child %}
+
+                    {% endif %}
                 </div>
                 {% endfor %}
             </details>
-        {% endfor %}
+        
 
 {% endif %}
+{% endfor %}
