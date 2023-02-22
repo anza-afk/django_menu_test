@@ -1,0 +1,14 @@
+{% load menu_extras %}
+<a href="{{ menu_item.explicit_url }}">{{ menu.name }}</a>
+{% if menu.children %}
+<details {% if menu.id in active %} open {% endif %}>
+    <summary>
+
+    </summary>
+    {% for child in menu.children %}
+    <div class="menu">
+        {% draw_menu child.name menu.id %}
+    </div>
+    {% endfor %}
+
+{% endif %}
