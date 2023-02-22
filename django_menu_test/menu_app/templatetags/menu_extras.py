@@ -19,11 +19,12 @@ def draw_menu(context, name):
     current_item = menu_query.filter(url=current_url).first()
 
     active = [current_item.id]
-    children=[]
-    for menu_item in menu_items:
-        for item in menu_query:
-            if item.parent == menu_item:
-                children.append(item)
+    # children=[]
+    # for menu_item in menu_items:
+    #     for item in menu_query:
+    #         if item.parent == menu_item:
+    #             children.append(item)
+    children = {menu_item.id : [item for item in menu_query if item.parent == menu_item] for menu_item in menu_items}
     return {
         'menu': menu_query,
         'menu_items': menu_items,
@@ -35,9 +36,11 @@ def draw_menu(context, name):
 def draw_menu_item(context, name):
 
     if 'menu_query' in context:
+
         menu_query = context['menu_query']
         current_item = menu_query.filter(name=name).first()
-
+        print(menu_query)
+        print(name, current_item)
     else:
         menu_query = MenuItem.objects.select_related('menu').all()
         current_item = None
@@ -61,14 +64,15 @@ def draw_menu_item(context, name):
     active = get_parents(active_item)
     active.append(active_item.id)
 
-    print('active///////')
-    print(active)
 
-    children = [item for item in menu_query if item.parent == current_item]
+    if 'children' in context:
+        children = context['children']
+    children[current_item.id] = [item for item in menu_query if item.parent == current_item]
 
-    print('children///////')
-    print(children)
+
     current_item = [current_item]
+    # print(current_item)
+    # print(children)
     return {
         'menu_items': current_item,
         'children': children,

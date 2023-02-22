@@ -1,22 +1,26 @@
 {% load menu_extras %}
 
-        {% for menu_item in menu_items %}
-            <a href="{{ menu_item.explicit_url }}">{{ menu_item.name }}</a>
-            {% if children %}
-            <details {% if item.id in active %} open {% endif %}>
-            <summary>
+{% for menu_item in menu_items %}
+    <a href="{{ menu_item.url }}">{{ menu_item.name }}</a>
+    {% if menu_item.id in children %}
+        <details {% if item.id in active %} open {% endif %}>
+        <summary>
 
-            </summary>
-                {% for child in children %}
-                <div class="menu_item">
-                    {% if child.parent.id == menu_item.id %}
-                    {% draw_menu_item child %}
+        </summary>
+            {% for key, value in children.items %}
+                {% if key == menu_item.id %}
+                    {% for child in value %}
+                        {% draw_menu_item child %}
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+            <div class="menu_item">
 
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </details>
-        
 
-{% endif %}
+            </div>
+            
+        </details>
+    {% endif %}
 {% endfor %}
+
+
