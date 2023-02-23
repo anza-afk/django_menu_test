@@ -21,9 +21,8 @@ def draw_menu(context: RequestContext, name: str) -> dict:
         menu_query = context['menu_query']
         current_item = utils.filter_list(menu_query, 'name', name)
     else:
-
-        _query = MenuItem.objects.select_related('menu').filter(menu__name=name)
-        menu_query = [menu_item.__dict__ for menu_item in _query]
+        query = MenuItem.objects.select_related('menu').filter(menu__name=name)
+        menu_query = [menu_item.__dict__ for menu_item in query]
 
         current_item = None
 
