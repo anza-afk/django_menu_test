@@ -1,46 +1,92 @@
 from django import template
-from django.urls import reverse, NoReverseMatch
-from menu_app.models import Menu, MenuItem
+from menu_app.models import MenuItem
+from menu_app.utils import get_current_url, get_acive_item
+
+
 
 register = template.Library()
 
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
 
 @register.inclusion_tag('menu_app/menu_template.html', takes_context=True)
 def draw_menu(context, name):
 
-    menu_query = MenuItem.objects.select_related('menu').filter(menu__name=name)
-    menu_items = list(menu_query.filter(parent=None))
+    if 'menu_query' in context:
+        menu_query = context['menu_query']
+        current_item = menu_query.filter(name=name).first()
+    else:
+        menu_query = MenuItem.objects.select_related('menu').all()
+        current_item = None
+    if not current_item:
+        current_item = menu_query.filter(parent=None).first()
 
-    try:
-        current_url = context['request'].path
-    except KeyError:
-        current_url = '/'
 
-    current_item = menu_query.filter(url=current_url).first()
+    current_url = get_current_url(context)
+    active_item = get_acive_item(menu_query, current_url)
 
-    active = [current_item.id]
-    # children=[]
-    # for menu_item in menu_items:
-    #     for item in menu_query:
-    #         if item.parent == menu_item:
-    #             children.append(item)
-    children = {menu_item.id : [item for item in menu_query if item.parent == menu_item] for menu_item in menu_items}
+    print(current_url)
+    print(active_item)
+
+    if 'active' in context:
+        active = context['active']
+    else:
+  
+        active = MenuItem.get_parents(active_item)
+        print(MenuItem.get_parents(active_item))
+        active.append(active_item.id)
+    
+    children = {}
+    children[current_item.id] = [item for item in menu_query if item.parent == current_item]
+
+    print(active)
     return {
-        'menu': menu_query,
-        'menu_items': menu_items,
+        'menu_item': current_item,
         'children': children,
         'active': active,
+        'menu_query': menu_query
     }
 
+
+
+
+# @register.inclusion_tag('menu_app/menu_template.html', takes_context=True)
+# def draw_menu(context, name):
+
+#     menu_query = MenuItem.objects.select_related('menu').filter(menu__name=name)
+#     menu_items = list(menu_query.filter(parent=None))
+
+#     try:
+#         current_url = context['request'].path
+#     except KeyError:
+#         current_url = '/'
+
+#     current_item = menu_query.filter(url=current_url).first()
+
+#     active = [current_item.id]
+
+#     children = {menu_item.id : [item for item in menu_query if item.parent == menu_item] for menu_item in menu_items}
+
+#     return {
+#         'menu': menu_query,
+#         'menu_items': menu_items,
+#         'menu_item': current_item,
+#         'children': children,
+#         'active': active,
+#     }
+
+
+
+
 @register.inclusion_tag('menu_app/menu_template.html', takes_context=True)
-def draw_menu_item(context, name):
+def draw_menu___(context, name):
 
     if 'menu_query' in context:
 
         menu_query = context['menu_query']
         current_item = menu_query.filter(name=name).first()
-        print(menu_query)
-        print(name, current_item)
+        # print(name, current_item)
     else:
         menu_query = MenuItem.objects.select_related('menu').all()
         current_item = None
@@ -67,14 +113,13 @@ def draw_menu_item(context, name):
 
     if 'children' in context:
         children = context['children']
+    else:
+        children = {}
+    # children = [item for item in menu_query if item.parent == current_item]
     children[current_item.id] = [item for item in menu_query if item.parent == current_item]
-
-
-    current_item = [current_item]
-    # print(current_item)
-    # print(children)
+    print('FATH', current_item, 'CH', children)
     return {
-        'menu_items': current_item,
+        'menu_item': current_item,
         'children': children,
         'active': active,
         'menu_query': menu_query

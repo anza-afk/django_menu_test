@@ -19,3 +19,10 @@ class MenuItem(models.Model):
     
     def __str__(self):
         return self.name
+
+    @staticmethod
+    def get_parents(menu_item):
+        if menu_item.parent:
+            return MenuItem.get_parents(menu_item.parent) + [menu_item.parent.id]
+        else:
+            return []
