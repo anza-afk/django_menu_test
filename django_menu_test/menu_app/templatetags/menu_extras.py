@@ -25,7 +25,7 @@ def draw_menu(context: RequestContext, name: str) -> dict:
         query = MenuItem.objects.select_related('menu').filter(menu__name=name)
         menu_query = [menu_item.__dict__ for menu_item in query]
         current_item = None
-        
+
     # Selecting root item
     if not current_item:
         current_item = utils.filter_list(menu_query, 'parent_id', None)
