@@ -1,4 +1,4 @@
-from django.urls import resolve
+from django.urls import resolve, reverse, NoReverseMatch
 
 
 def get_current_url(context):
@@ -10,7 +10,19 @@ def get_current_url(context):
 
 
 def get_acive_item(menu_query, current_url):
-    active_item = menu_query.filter(url=resolve(current_url).url_name).first()
+    active_item = next(filter(
+        lambda item: item['url'] == resolve(current_url).url_name, menu_query
+    ))
     if not active_item:
-        active_item = menu_query.filter(url=current_url).first()
+        active_item = next(filter(
+            lambda item: item['url'] == current_url, menu_query
+        ))
     return active_item
+
+
+def get_url_path(item):
+    try:
+        url_path = reverse(item['url'])
+    except NoReverseMatch:
+        url_path = item['url']
+    return url_path

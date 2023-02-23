@@ -1,18 +1,15 @@
 {% load menu_extras %}
-
+<div class="container">
     <a href="{{ menu_item.url }}">{{ menu_item.name }}</a>
         {% if children %}
-            <details {% if menu_item.id in active %} open {% endif %}>
-            <summary>
-
-            </summary>
-
+            {% if menu_item.id in active %}
                 {% for child in children|get_item:menu_item.id %}
-                    {% draw_menu child %}
+                <dd>
+                    {% draw_menu child.name %}
+                </dd>
                 {% endfor %}
-            <div class="menu_item">
             </div>
-        </details>
+            {% endif %}
     {% endif %}
 
 
