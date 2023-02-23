@@ -21,18 +21,17 @@ def draw_menu(context: RequestContext, name: str) -> dict:
         menu_query = context['menu_query']
         current_item = utils.filter_list(menu_query, 'name', name)
     else:
+        # Creating list of dicts relative menu items by menu name
         query = MenuItem.objects.select_related('menu').filter(menu__name=name)
         menu_query = [menu_item.__dict__ for menu_item in query]
-
         current_item = None
-
+        
+    # Selecting root item
     if not current_item:
         current_item = utils.filter_list(menu_query, 'parent_id', None)
 
     current_url = utils.get_current_url(context)
-
     active_item = utils.get_acive_item(menu_query, current_url)
-
     menu_item = {
         'id': current_item['id'],
         'name': current_item['name'],
@@ -42,12 +41,14 @@ def draw_menu(context: RequestContext, name: str) -> dict:
     if 'active' in context:
         active = context['active']
     else:
+        # If active item in current menu - collecting all active items
         if active_item:
             active = MenuItem.get_parents(active_item, menu_query)
             active.append(active_item['id'])
         else:
             active = []
 
+    # Collecting children relative to current item for recursive template logic
     children = {}
     children[current_item['id']] = list(filter(
         lambda item: item['parent_id'] == current_item['id'], menu_query
