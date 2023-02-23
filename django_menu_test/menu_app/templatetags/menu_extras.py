@@ -43,8 +43,11 @@ def draw_menu(context: RequestContext, name: str) -> dict:
     if 'active' in context:
         active = context['active']
     else:
-        active = MenuItem.get_parents(active_item, menu_query)
-        active.append(active_item['id'])
+        if active_item:
+            active = MenuItem.get_parents(active_item, menu_query)
+            active.append(active_item['id'])
+        else:
+            active = []
 
     children = {}
     children[current_item['id']] = list(filter(
