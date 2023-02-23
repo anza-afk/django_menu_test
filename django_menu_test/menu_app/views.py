@@ -34,3 +34,13 @@ def about_us(request, pk=None):
 def contacts(request, pk=None):
     context = {}
     return render(request, 'menu_app/contacts.html', context)
+
+
+def second_index(request, pk=None):
+    context = {}
+    return render(request, 'menu_app/second_index.html', context)
+
+
+def second_shop(request, pk=None):
+    context = {}
+    return render(request, 'menu_app/second_shop.html', context)

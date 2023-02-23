@@ -27,7 +27,7 @@ class MenuItem(models.Model):
         return self.name
 
     @staticmethod
-    def get_parents(child, query):
+    def get_parents(child: dict, query: list[dict]) -> list:
         if child['parent_id']:
             parent = next(filter(
                 lambda item: item['id'] == child['parent_id'],

@@ -1,12 +1,13 @@
 from django import template
 from menu_app.models import MenuItem
-from menu_app.utils import get_current_url, get_acive_item, get_url_path
-
+from menu_app import utils
+from django.template.context import RequestContext
 register = template.Library()
 
 
 @register.filter
-def get_item(dictionary, key):
+def get_item(dictionary: dict, key: str) -> dict:
+    """Filter for getting item from diict by any key in template"""
     return dictionary.get(key)
 
 
@@ -14,32 +15,29 @@ def get_item(dictionary, key):
     'menu_app/menu_templates/menu_template.html',
     takes_context=True
 )
-def draw_menu(context, name):
-
+def draw_menu(context: RequestContext, name: str) -> dict:
+    """Template tag menu logic"""
     if 'menu_query' in context:
         menu_query = context['menu_query']
-        current_item = next(filter(
-            lambda item: item['name'] == name, menu_query
-        ))
-
+        current_item = utils.filter_list(menu_query, 'name', name)
     else:
-        _query = MenuItem.objects.select_related('menu').all()
+
+        _query = MenuItem.objects.select_related('menu').filter(menu__name=name)
         menu_query = [menu_item.__dict__ for menu_item in _query]
 
         current_item = None
 
     if not current_item:
-        current_item = next(
-            filter(lambda item: item['parent_id'] is None, menu_query)
-        )
+        current_item = utils.filter_list(menu_query, 'parent_id', None)
 
-    current_url = get_current_url(context)
-    active_item = get_acive_item(menu_query, current_url)
+    current_url = utils.get_current_url(context)
+
+    active_item = utils.get_acive_item(menu_query, current_url)
 
     menu_item = {
         'id': current_item['id'],
         'name': current_item['name'],
-        'url': get_url_path(current_item),
+        'url': utils.get_url_path(current_item),
     }
 
     if 'active' in context:
